@@ -1,116 +1,122 @@
 <template>
-    <div id="users">
-        <h1>Activities</h1>
-        <form v-on:submit="addActivity">
-            <input type="text" v-model="newActivity.name" placeholder="enter activity">
-            <input type="submit" value="Submit">
-        </form>
-        <ul>
-            <li v-for="(activity,RowKey) in activities" v-bind:key="RowKey">
-                <input type="checkbox" class="toggle" v-model="activity.contacted">
-                <!-- give it a class of contacted if user is contacted-->
-                <span :class="{contacted: activity.contacted}">
-                    {{activity.Name}} --> {{activity.RowKey}}
-                    <button v-on:click="deleteUser(activity)">x</button>"
-                </span>
-            </li>
-        </ul>
-        </div>
+  <div>
+    <h1>Activities</h1>
+    <form v-on:submit="addActivityIdea">
+        <input type="text" v-model="newActivity.description" placeholder="enter description">
+        <input type="text" v-model="newActivity.location" placeholder="enter location">
+        <input type="submit" value="Submit">
+    </form>
+    <v-data-table
+      :headers="headers"
+      :items="activities"
+      hide-actions
+      class="elevation-1"
+    >
+      <template slot="items" slot-scope="props">
+        <td>{{ props.item.description }}</td>
+        <td>{{ props.item.location }}</td>
+      </template>
+    </v-data-table>
+  </div>
 </template>
+
+
 
 <script>
  
   /*import axios from 'axios' */ /* import is advised against using - use require instead (see below) */
   let axios = require('axios');  /* otherwise: ReferenceError: axios is not defined */
 
+  const requestConfig = {
+    httpPostActivityIdea: {
+      baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
+      url: '/HttpPOST-ActivityIdea',
+      headers: {
+        'Content-Type': 'application/json', 
+        'x-functions-key': 'WkIj289PLWj7CCvqP6fta/PY3c0jGPYtqlbFwPhazgjOBCSyoU5PDg=='
+      },
+      responseType: 'json'
+    },
+    httpGetActivityIdea: {
+      baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
+      url: '/HttpGET-ActivityIdea',
+      headers: {
+        'Content-Type': 'application/json', 
+        'x-functions-key': 'pWGoR5ApB3woNEvMha/f91fwbbnyOCJp3tb0aKR1pf1K2iG3SaFs9A=='
+      },
+      responseType: 'json'
+    }
+  }
 
-
-  export default {
-    name: 'users',
-    /* define data properties */
-    data() {
-        return {
-          newActivity: {},
-          activities: [
-            {
-                name: 'John Doe', 
-                email: 'jdoe@email.com',
-                contacted: false
-            },
-            {
-                name: 'Jane Doe', 
-                email: 'jadoe@email.com',
-                contacted: false
-            }
-          ]
-        }
-    },
-    methods: {
-      addActivity: function(e){
-          console.log('addActivity');
-          let oNewActivity = {
-              name: this.newActivity.name
-          };
-          let config = {
+  const HttpPostActivityIdea = { 
+    config: {
             headers: {
               'Content-Type': 'application/json', 
               'x-functions-key': 'WkIj289PLWj7CCvqP6fta/PY3c0jGPYtqlbFwPhazgjOBCSyoU5PDg=='
             },
             responseType: 'json'
-          };
-          let instance = axios.create(config);
-          console.log('send POST - add activity');
-          console.log(instance);
-          let url = 'http://bpnotes-api.azurewebsites.net/api/HttpPOST-ActivityIdea';
-          instance.post(url, oNewActivity).then((response) => {
-            console.log('successful POST - add activity');
-            this.users.push(oNewActivity);
-            //e.preventDefault();
-            console.log('updated activity list');
-          }).catch(function (error) {
-            console.log(error);
-          });
+    },
+    url : 'http://bpnotes-api.azurewebsites.net/api/HttpPOST-ActivityIdea'
+  }
 
-      },
-      deleteUser: function(user){
-          console.log('deleteUser');
-          console.log(user.name);
-          console.log(this.users);
-          this.users.splice(this.users.indexOf(user, 1));
-          
-      }
+  export default {
+    name: 'activityIdea',
+    /* define data properties */
+    data() {
+        return {
+          newActivity: {},
+
+        headers: [
+          {
+            text: 'NAME',
+            align: 'left',
+            sortable: false,
+            value: 'description'
+          },
+          { 
+            text: 'LOCATION', 
+            align: 'left',
+            sortable: false,
+            value: 'location' 
+          }
+          /*
+          { text: 'Calories', value: 'calories' },
+          { text: 'Fat (g)', value: 'fat' },
+          { text: 'Carbs (g)', value: 'carbs' },
+          { text: 'Protein (g)', value: 'protein' },
+          { text: 'Iron (%)', value: 'iron' }*/
+        ],
+          activities: []
+        }
     },
-    /* view.js has a set of lifecycle hooks - created, mounted, updated, and destroyed */
+    methods: {
+      addActivityIdea: function(e){
+        let oNewActivity = {
+          description: this.newActivity.description,
+          location: this.newActivity.location
+        };
+        let instance = axios.create(requestConfig.httpPostActivityIdea);
+        instance.post('/HttpPOST-ActivityIdea', oNewActivity).then((response) => {
+          this.getActivityIdeas();
+        }).catch(function (error) {
+          console.log(error)
+        });
+      },
+      deleteActivityIdea: function(activity){
+        //this.activities.splice(this.activities.indexOf(activity, 1));
+      },
+      getActivityIdeas: function() {
+        let instance = axios.create(requestConfig.httpGetActivityIdea);
+        instance.get('/HttpGET-ActivityIdea').then((response) => {
+        this.activities = response.data
+      }).catch(function (error) {
+        console.log(error);
+      });
+      }
+    },
+    /* fetches activity ideas list when the component is created. */
     created: function(){
-        console.log('created ran');
-      //axios.get('https://jsonplaceholder.typicode.com/users').then((response) => {
-      //console.log(response.data)
-      //this.users = response.data
-
-        console.log('created ran');
-
-  let config = {
-    headers: {'Content-Type': 'application/json', 'x-functions-key': 'pWGoR5ApB3woNEvMha/f91fwbbnyOCJp3tb0aKR1pf1K2iG3SaFs9A=='},
-    responseType: 'json'
-  };
-  let instance = axios.create(config);
-
-//https://bpnotes-api.azurewebsites.net/api/HttpGET-ActivityIdea?code=pWGoR5ApB3woNEvMha/f91fwbbnyOCJp3tb0aKR1pf1K2iG3SaFs9A==
-     instance.get('http://bpnotes-api.azurewebsites.net/api/HttpGET-ActivityIdea').then((response) => {
-     console.log(response.data)
-     this.activities = response.data
-    })
-
-
-
-   // })
+      this.getActivityIdeas();
     }
   }
 </script>
-
-
-<style scoped>
-  .contacted {
-      text-decoration: line-through 
-  }
-</style>

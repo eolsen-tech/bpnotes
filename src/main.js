@@ -12,11 +12,13 @@ import VueResource from 'vue-resource'
 import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure you are using css-loader
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
+import ActivityIdea from '@/components/ActivityIdea' 
 
 //import ActivityIdea from '@/components/ActivityIdea'
 
 Vue.use(VueAxios, axios, VueResource)
 Vue.use(Vuetify)
+Vue.use(ActivityIdea)
 
 Vue.config.productionTip = false
 
@@ -24,6 +26,6 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  components: { App },
-  template: '<App/>'
+  components: { ActivityIdea },
+  template: '<ActivityIdea/>'
 })

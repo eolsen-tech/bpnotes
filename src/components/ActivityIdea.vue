@@ -1,57 +1,61 @@
 <template>
-  <div>
-    <h1>Activities</h1>
-    <!--In order for your application to work properly, you must wrap it in a v-app component -->
 <v-app id="inspire">
-  <div class="mx-auto bg-info" style="width: 400px;">
-  <v-form ref="form" v-on:submit="addActivityIdea" v-model="valid" lazy-validation>
-    <v-text-field
-      v-model="newActivity.description"
-      :rules="[v => !!v || 'Item is required']"
-      label="Description"
-      required
-    ></v-text-field>
-
-        <v-text-field
-      v-model="newActivity.location"
-      :rules="[v => !!v || 'Item is required']"
-      label="Location"
-      required
-    ></v-text-field>
-
-    <v-select
-        v-model="newActivity.month"
-        :items="months"
-        :rules="[v => !!v || 'Item is required']"
-        label="Month"
-        required
-    ></v-select>
-
-    <v-btn
-      :disabled="!valid"
-      @click="submit"
-    >
-      submit
-    </v-btn>
-    <v-btn @click="clear">clear</v-btn>
-  </v-form>
-  </div>
-    </v-app>
+  <div>
+    <!-- Choosing an option immediately commits the option and closes the menu. 
+        Touching outside of the dialog, or pressing Back, cancels the action and closes the dialog. -->
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-btn slot="activator" color="primary" dark class="mb-2">New Item</v-btn>
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ formTitle }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm6 md4>
+                <v-text-field v-model="editedItem.description" label="Description"></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6 md4>
+                <v-text-field v-model="editedItem.location" label="Location"></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6 md4>
+                <v-text-field v-model="editedItem.month" label="Month"></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+          <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-data-table
       :headers="headers"
       :items="activities"
       hide-actions
       class="elevation-1"
-      sort-icon="arrow_drop_down"
     >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.description }}</td>
-        <td>{{ props.item.location }}</td>
-        <td>{{ props.item.month }}</td>
+        <td class="text-xs-right">{{ props.item.location }}</td>
+        <td class="text-xs-right">{{ props.item.month }}</td>
+        <td class="justify-center layout px-0">
+          <v-btn icon class="mx-0" @click="editItem(props.item)">
+            <v-icon color="teal">edit</v-icon>
+          </v-btn>
+          <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+            <v-icon color="pink">delete</v-icon>
+          </v-btn>
+        </td>
+      </template>
+      <template slot="no-data">
+        <v-btn color="primary" @click="getActivityIdeas">Reset</v-btn>
       </template>
     </v-data-table>
   </div>
-
+  </v-app>
 </template>
 
 
@@ -99,14 +103,14 @@
     data() {
         return {
           newActivity: {},
+       dialog: false,
     valid: true,
 
-    items: [
-      'Item 1',
-      'Item 2',
-      'Item 3',
-      'Item 4'
-    ],
+      editedItem: {
+        description: '',
+        month: '',
+        location: ''
+      },
 
         months: [
           'All',
@@ -126,7 +130,7 @@
         ],
         headers: [
           {
-            text: 'NAME',
+            text: 'Description',
             align: 'left',
             //sortable: false,
             value: 'description'
@@ -138,7 +142,7 @@
             value: 'location' 
           },
           { 
-            text: 'MONTH', 
+            text: 'Month', 
             align: 'left',
             //sortable: false,
             value: 'month' 
@@ -180,11 +184,51 @@
       },
       clear () {
         this.$refs.form.reset()
-      }
+      },
+      close () {
+        this.dialog = false
+        setTimeout(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        }, 300)
+      },
+
+      save () {
+        if (this.editedIndex > -1) {
+          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        } else {
+          this.desserts.push(this.editedItem)
+        }
+        this.close()
+      },
+
+      editItem (item) {
+        this.editedIndex = this.activities.indexOf(item)
+        console.log(item);
+        console.log(this.editedIndex);
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
+
+      deleteItem (item) {
+        const index = this.activities.indexOf(item)
+        confirm('Are you sure you want to delete this item?') && this.activities.splice(index, 1)
+      },
     },
     /* fetches activity ideas list when the component is created. */
     created: function(){
       this.getActivityIdeas();
-    }
+    },
+    computed: {
+      formTitle () {
+        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+      }
+    },
+
+    watch: {
+      dialog (val) {
+        val || this.close()
+      }
+    }
   }
 </script>

@@ -1,12 +1,42 @@
 <template>
   <div>
     <h1>Activities</h1>
-    <form v-on:submit="addActivityIdea">
-        <input type="text" v-model="newActivity.description" placeholder="enter description">
-        <input type="text" v-model="newActivity.location" placeholder="enter location">
-        <input type="text" v-model="newActivity.month" placeholder="enter month">
-        <input type="submit" value="Submit">
-    </form>
+    <!--In order for your application to work properly, you must wrap it in a v-app component -->
+<v-app id="inspire">
+  <div class="mx-auto bg-info" style="width: 400px;">
+  <v-form ref="form" v-on:submit="addActivityIdea" v-model="valid" lazy-validation>
+    <v-text-field
+      v-model="newActivity.description"
+      :rules="[v => !!v || 'Item is required']"
+      label="Description"
+      required
+    ></v-text-field>
+
+        <v-text-field
+      v-model="newActivity.location"
+      :rules="[v => !!v || 'Item is required']"
+      label="Location"
+      required
+    ></v-text-field>
+
+    <v-select
+        v-model="newActivity.month"
+        :items="months"
+        :rules="[v => !!v || 'Item is required']"
+        label="Month"
+        required
+    ></v-select>
+
+    <v-btn
+      :disabled="!valid"
+      @click="submit"
+    >
+      submit
+    </v-btn>
+    <v-btn @click="clear">clear</v-btn>
+  </v-form>
+  </div>
+    </v-app>
     <v-data-table
       :headers="headers"
       :items="activities"
@@ -21,6 +51,7 @@
       </template>
     </v-data-table>
   </div>
+
 </template>
 
 
@@ -68,7 +99,31 @@
     data() {
         return {
           newActivity: {},
+    valid: true,
 
+    items: [
+      'Item 1',
+      'Item 2',
+      'Item 3',
+      'Item 4'
+    ],
+
+        months: [
+          'All',
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'August',
+          'October',
+          'November',
+          'December'
+        ],
         headers: [
           {
             text: 'NAME',
@@ -96,7 +151,8 @@
       addActivityIdea: function(e){
         let oNewActivity = {
           description: this.newActivity.description,
-          location: this.newActivity.location
+          location: this.newActivity.location,
+          month: this.newActivity.month
         };
         let instance = axios.create(requestConfig.httpPostActivityIdea);
         instance.post('/HttpPOST-ActivityIdea', oNewActivity).then((response) => {
@@ -115,6 +171,15 @@
       }).catch(function (error) {
         console.log(error);
       });
+      },
+      submit () {
+      if (this.$refs.form.validate()) {
+        // Native form submission is not yet supported
+        this.addActivityIdea();
+      }
+      },
+      clear () {
+        this.$refs.form.reset()
       }
     },
     /* fetches activity ideas list when the component is created. */

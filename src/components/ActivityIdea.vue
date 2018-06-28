@@ -75,6 +75,24 @@
       },
       responseType: 'json'
     },
+    httpPutActivityIdea: {
+      baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
+      url: '/HttpPUT-ActivityIdea',
+      headers: {
+        'Content-Type': 'application/json', 
+        'x-functions-key': 'IGaJ7F4aK9rky7a4h57hYVHgEXauw2CacjN11dWC2Sx5eyRhUSvolQ=='
+      },
+      responseType: 'json'
+    },
+    httpDeleteActivityIdea: {
+      baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
+      url: '/HttpDELETE-ActivityIdea',
+      headers: {
+        'Content-Type': 'application/json', 
+        'x-functions-key': 'HW2v1LrrdKax7EM1tLl/xbFBXJ1aKqaxpeampBOYnLBxj5GxvywJcQ=='
+      },
+      responseType: 'json'
+    },
     httpGetActivityIdea: {
       baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
       url: '/HttpGET-ActivityIdea',
@@ -105,7 +123,7 @@
           newActivity: {},
        dialog: false,
     valid: true,
-
+    editedIndex: -1,
       editedItem: {
         description: '',
         month: '',
@@ -154,9 +172,9 @@
     methods: {
       addActivityIdea: function(e){
         let oNewActivity = {
-          description: this.newActivity.description,
-          location: this.newActivity.location,
-          month: this.newActivity.month
+          description: this.editedItem.description,
+          location: this.editedItem.location,
+          month: this.editedItem.month
         };
         let instance = axios.create(requestConfig.httpPostActivityIdea);
         instance.post('/HttpPOST-ActivityIdea', oNewActivity).then((response) => {
@@ -165,9 +183,31 @@
           console.log(error)
         });
       },
-      deleteActivityIdea: function(activity){
-        //this.activities.splice(this.activities.indexOf(activity, 1));
-      },
+      updateActivityIdea: function(activityIdea){
+
+        //this.editedIndex = this.activities.indexOf(activityIdea)
+        this.editedItem = Object.assign({}, activityIdea)
+        this.dialog = true
+
+        let instance = axios.create(requestConfig.httpPutActivityIdea);
+        instance.put('/HttpPUT-ActivityIdea', activityIdea).then((response) => {
+          this.getActivityIdeas();
+          //this.dialog = true
+          this.close()
+        }).catch(function (error) {
+          console.log(error)
+          //this.dialog = true
+          this.close()
+        });
+      },
+      deleteActivityIdea: function(activityIdea){
+        let instance = axios.create(requestConfig.httpDeleteActivityIdea);
+        instance.post('/HttpDELETE-ActivityIdea', activityIdea).then((response) => {
+          this.getActivityIdeas();
+        }).catch(function (error) {
+          console.log(error)
+        });
+      },
       getActivityIdeas: function() {
         let instance = axios.create(requestConfig.httpGetActivityIdea);
         instance.get('/HttpGET-ActivityIdea').then((response) => {
@@ -194,18 +234,26 @@
       },
 
       save () {
+
+        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        console.log(this.editedItem);
+        console.log(this.editedIndex);
+        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
         if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+          //Object.assign(this.activities[this.editedIndex], this.editedItem)
+          this.updateActivityIdea(this.editedItem);
+          console.log('save: -1');
         } else {
-          this.desserts.push(this.editedItem)
+          //this.activities.push(this.editedItem)
+          this.addActivityIdea(this.editedItem);
+          console.log('save: else')
         }
         this.close()
       },
 
       editItem (item) {
         this.editedIndex = this.activities.indexOf(item)
-        console.log(item);
-        console.log(this.editedIndex);
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },

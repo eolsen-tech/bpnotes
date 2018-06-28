@@ -8,6 +8,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueResource from 'vue-resource'
 
+//npm install material-design-icons-iconfont -D
+import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure you are using css-loader
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
 

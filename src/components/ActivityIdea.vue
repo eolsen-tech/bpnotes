@@ -4,6 +4,7 @@
     <form v-on:submit="addActivityIdea">
         <input type="text" v-model="newActivity.description" placeholder="enter description">
         <input type="text" v-model="newActivity.location" placeholder="enter location">
+        <input type="text" v-model="newActivity.month" placeholder="enter month">
         <input type="submit" value="Submit">
     </form>
     <v-data-table
@@ -11,10 +12,12 @@
       :items="activities"
       hide-actions
       class="elevation-1"
+      sort-icon="arrow_drop_down"
     >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.description }}</td>
         <td>{{ props.item.location }}</td>
+        <td>{{ props.item.month }}</td>
       </template>
     </v-data-table>
   </div>
@@ -70,21 +73,21 @@
           {
             text: 'NAME',
             align: 'left',
-            sortable: false,
+            //sortable: false,
             value: 'description'
           },
           { 
-            text: 'LOCATION', 
+            text: 'Location', 
             align: 'left',
-            sortable: false,
+            sortable: true,
             value: 'location' 
+          },
+          { 
+            text: 'MONTH', 
+            align: 'left',
+            //sortable: false,
+            value: 'month' 
           }
-          /*
-          { text: 'Calories', value: 'calories' },
-          { text: 'Fat (g)', value: 'fat' },
-          { text: 'Carbs (g)', value: 'carbs' },
-          { text: 'Protein (g)', value: 'protein' },
-          { text: 'Iron (%)', value: 'iron' }*/
         ],
           activities: []
         }

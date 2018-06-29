@@ -21,6 +21,9 @@
               <v-flex xs12 sm6 md4>
                 <v-text-field v-model="editedItem.month" label="Month"></v-text-field>
               </v-flex>
+              <v-flex xs12 sm6 md4>
+                <v-text-field v-model="editedItem.type" label="Type"></v-text-field>
+              </v-flex>
             </v-layout>
           </v-container>
         </v-card-text>
@@ -41,6 +44,8 @@
         <td>{{ props.item.description }}</td>
         <td class="text-xs-right">{{ props.item.location }}</td>
         <td class="text-xs-right">{{ props.item.month }}</td>
+        <td class="text-xs-right">{{ props.item.type }}</td>
+
         <td class="justify-center layout px-0">
           <v-btn icon class="mx-0" @click="editItem(props.item)">
             <v-icon color="teal">edit</v-icon>
@@ -127,11 +132,16 @@
       editedItem: {
         description: '',
         month: '',
-        location: ''
+        location: '',
+        type: ''
       },
-
+        type: [
+          'General',
+          'BPN',
+          'Activity'
+        ],
         months: [
-          'All',
+          'Any',
           'January',
           'February',
           'March',
@@ -164,6 +174,12 @@
             align: 'left',
             //sortable: false,
             value: 'month' 
+          },
+          { 
+            text: 'Type', 
+            align: 'left',
+            //sortable: false,
+            value: 'type' 
           }
         ],
           activities: []
@@ -174,7 +190,9 @@
         let oNewActivity = {
           description: this.editedItem.description,
           location: this.editedItem.location,
-          month: this.editedItem.month
+          month: this.editedItem.month,
+          type: this.editedItem.type
+
         };
         let instance = axios.create(requestConfig.httpPostActivityIdea);
         instance.post('/HttpPOST-ActivityIdea', oNewActivity).then((response) => {
@@ -184,7 +202,8 @@
         });
       },
       updateActivityIdea: function(activityIdea){
-
+        console.log('updateActivityIdea')
+        console.log(activityIdea);
         //this.editedIndex = this.activities.indexOf(activityIdea)
         this.editedItem = Object.assign({}, activityIdea)
         this.dialog = true
@@ -238,12 +257,14 @@
         console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$')
         console.log(this.editedItem);
         console.log(this.editedIndex);
+        console.log(this.editedItem);
         console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
         if (this.editedIndex > -1) {
           //Object.assign(this.activities[this.editedIndex], this.editedItem)
           this.updateActivityIdea(this.editedItem);
-          console.log('save: -1');
+          console.log(this.editedItem);
+          console.log('calling updateActivityIdea().... ');
         } else {
           //this.activities.push(this.editedItem)
           this.addActivityIdea(this.editedItem);
@@ -253,9 +274,13 @@
       },
 
       editItem (item) {
+        console.log('editItem');
+        console.log(item);
         this.editedIndex = this.activities.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
+        console.log(this.editedItem);
+        console.log('------------------');
       },
 
       deleteItem (item) {

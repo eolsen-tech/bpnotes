@@ -3,7 +3,7 @@
   <div>
     <!-- Choosing an option immediately commits the option and closes the menu. 
         Touching outside of the dialog, or pressing Back, cancels the action and closes the dialog. -->
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" max-width="1000px">
       <v-btn slot="activator" color="primary" dark class="mb-2">New Item</v-btn>
       <v-card>
         <v-card-title>
@@ -220,6 +220,7 @@
         });
       },
       deleteActivityIdea: function(activityIdea){
+        console.log('deleteActivityIdea');
         let instance = axios.create(requestConfig.httpDeleteActivityIdea);
         instance.post('/HttpDELETE-ActivityIdea', activityIdea).then((response) => {
           this.getActivityIdeas();
@@ -284,8 +285,10 @@
       },
 
       deleteItem (item) {
-        const index = this.activities.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.activities.splice(index, 1)
+        //const index = this.activities.indexOf(item)
+        //confirm('Are you sure you want to delete this item?') && this.activities.splice(index, 1)
+        console.log('deleteActivityIdea');
+        this.deleteActivityIdea(item);
       },
     },
     /* fetches activity ideas list when the component is created. */

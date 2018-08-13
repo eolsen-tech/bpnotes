@@ -70,6 +70,11 @@
   /*import axios from 'axios' */ /* import is advised against using - use require instead (see below) */
   let axios = require('axios');  /* otherwise: ReferenceError: axios is not defined */
 
+import Utilities from '../libraries/Utilities.js';
+
+
+
+/*
   const requestConfig = {
     httpPostActivityIdea: {
       baseURL : 'http://bpnotes-api.azurewebsites.net/api/',
@@ -108,6 +113,7 @@
       responseType: 'json'
     }
   }
+  */
 
   const HttpPostActivityIdea = { 
     config: {
@@ -194,7 +200,7 @@
           type: this.editedItem.type
 
         };
-        let instance = axios.create(requestConfig.httpPostActivityIdea);
+        let instance = axios.create(this.requestConfig.httpPostActivityIdea);
         instance.post('/HttpPOST-ActivityIdea', oNewActivity).then((response) => {
           this.getActivityIdeas();
         }).catch(function (error) {
@@ -208,7 +214,7 @@
         this.editedItem = Object.assign({}, activityIdea)
         this.dialog = true
 
-        let instance = axios.create(requestConfig.httpPutActivityIdea);
+        let instance = axios.create(this.requestConfig.httpPutActivityIdea);
         instance.put('/HttpPUT-ActivityIdea', activityIdea).then((response) => {
           this.getActivityIdeas();
           //this.dialog = true
@@ -221,7 +227,7 @@
       },
       deleteActivityIdea: function(activityIdea){
         console.log('deleteActivityIdea');
-        let instance = axios.create(requestConfig.httpDeleteActivityIdea);
+        let instance = axios.create(this.requestConfig.httpDeleteActivityIdea);
         instance.post('/HttpDELETE-ActivityIdea', activityIdea).then((response) => {
           this.getActivityIdeas();
         }).catch(function (error) {
@@ -229,8 +235,8 @@
         });
       },
       getActivityIdeas: function() {
-        let instance = axios.create(requestConfig.httpGetActivityIdea);
-        instance.get('/HttpGET-ActivityIdea').then((response) => {
+        let instance = axios.create(this.requestConfig.httpGetActivityIdea);
+        instance.get('/HttpGET-ActivityIdea', {params: {type: 'Activity'}}).then((response) => {
         this.activities = response.data
       }).catch(function (error) {
         console.log(error);
@@ -305,6 +311,12 @@
       dialog (val) {
         val || this.close()
       }
-    }
+    },
+
+      beforeCreate() {
+        this.requestConfig = Utilities.requestConfig;
+        console.log(this.requestConfig);
+        console.log('-- -- -- -- --');
+  }
   }
 </script>
